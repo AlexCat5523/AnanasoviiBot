@@ -1,9 +1,8 @@
 from colorama import init, Fore
-import telegram
 from telegram.ext import Updater, MessageHandler, Filters, ExtBot
 from telegram.ext import CallbackContext, CommandHandler, ConversationHandler
 from telegram import ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
-from telegram import CallbackQuery, ReplyKeyboardRemove, PhotoSize, Chat, Message
+from telegram import CallbackQuery, ReplyKeyboardRemove
 import random
 import math
 from time import sleep
@@ -12,23 +11,22 @@ import sqlite3
 import requests
 
 updater = Updater('5102501109:AAEq0uyJj_Gy4pb3QbyHQMjzU7ayV26Q7iE', use_context=True)
-telegram_bot = telegram.Bot(token='5102501109:AAEq0uyJj_Gy4pb3QbyHQMjzU7ayV26Q7iE')
+
 
 # ВСЕ НОВЫЕ КОМАНДЫ ЗАСОВЫВАТЬ В FALLBACKS!!!
 # Через них возвращать DEFINE, из-за чего процесс распознавания команд будет непрерывным и игра не завершится!
 
 dp = updater.dispatcher
-con = sqlite3.connect("ananas_bd.sqlite", check_same_thread=False)  # импортируем базу данных
+con = sqlite3.connect("ananas_bd.sqlite")  # импортируем базу данных
 cur = con.cursor()
 money = cur.execute("""SELECT * FROM money""").fetchall()  # выбираем все данные из таблицы
 
 print(f'Что такое {money}')
-
+cur.close()
 init()
 running = True
-cards_game = False  # начала игры в карты
-sure = False
-
+money_game = False  # идёт игра в монетку или в карты
+card_game = False
 cards_n = 36
 cards = ['PIK', 'TRE', 'CHER', 'BUB']
 card = 0
@@ -86,8 +84,7 @@ CARDS = {
 answering = ''  # отвечающий (ходит: игрок, отвечает: бот)
 bot_answer_answer = ''  # ответ бота на ход игрока (для того, чтобы можно было передавать по функциям)
 
-DEFINE, DEFINE_CARD, DEFINE_PLAYER_ANSWER, LOGIN_NIKNAME, LOGIN_PASSWORD, START, REGISTER, \
-COIN, EXIT_DURING_MOVES = range(9)
+DEFINE, DEFINE_CARD, DEFINE_PLAYER_ANSWER, LOGIN_NIKNAME, LOGIN_PASSWORD, START, REGISTER, COIN = range(8)
 
 player = list()
 bot = list()
@@ -101,7 +98,6 @@ koloda = ['Туз_BUB', 'Король_BUB', 'Дама_BUB', 'Валет_BUB', '�
           'Семь_CHER', 'Шесть_CHER',
           'Туз_TRE', 'Король_TRE', 'Дама_TRE', 'Валет_TRE', 'Десять_TRE', 'Девять_TRE', 'Восемь_TRE', 'Семь_TRE',
           'Шесть_TRE']
-nik = ''
 
 koloda_forever = ['Туз_BUB', 'Король_BUB', 'Дама_BUB', 'Валет_BUB', 'Десять_BUB', 'Девять_BUB', 'Восемь_BUB',
                   'Семь_BUB', 'Шесть_BUB',
@@ -177,7 +173,7 @@ def giving_cards(n, update, context):
     else:
         index_player = -1
 
-    if first_turn == '':
+    if first_turn != 'player':
         if min_bot != '' and min_player != '':
             if index_player > index_bot:
                 first_turn = 'player'
@@ -196,10 +192,7 @@ def giving_cards(n, update, context):
             print('ПЕРВЫЙ ХОДИТ ИГРОК')
         cards_n = 23
     else:
-        if first_turn == 'player':
-            print('ПЕРВЫЙ ХОДИТ ИГРОК')
-        else:
-            print('ПЕРВЫЙ ХОДИТ БОТ')
+        print('ПЕРВЫЙ ХОДИТ ИГРОК')
 
 
 def exit():
@@ -366,10 +359,9 @@ def bot_move(update, context):
 
 
 def bot_taking_cards(carta, update, context):
-    global n_bot_cards, answering
+    global n_bot_cards
     bot.append(carta)
     n_bot_cards += 1
-    answering = 'bot'
     return player_choose_card(update, context)
 
 
@@ -449,20 +441,19 @@ def bot_answ(update, context, movek):
 
 
 def game(update, context):
-    global first_turn, cards_game
-    if cards_game is True:
-        giving_cards(6, update, context)
-        if first_turn == 'player':
-            controls(update, context)
-        elif first_turn == 'bot':
-            print('Бот ходит')
-#            bot_move(update, context)
+    global first_turn
+    giving_cards(6, update, context)
+    if first_turn == 'player':
+        controls(update, context)
+    elif first_turn == 'bot':
+        print('Бот ходит')
+        bot_move(update, context)
 
 
 def pobeda(who_wins, update, context):
     global money, card_game
     if who_wins == 'p':
-        update.message.reply_text('МОЛОДЕЦ')
+        print('МОЛОДЕЦ')
         sqlite_connection = sqlite3.connect('ananas_bd.sqlite')  # импортируем базу данных
         cursor = sqlite_connection.cursor()
         sqlite_insert_query = cursor.execute("""DELETE from money
@@ -478,11 +469,11 @@ def pobeda(who_wins, update, context):
         cursor.close()
         money = str(int(money) + 50)
         update.message.reply_text('Ваш баланс: ' + str(money))
-        
+        card_game = False
         return ConversationHandler.END
 
     if who_wins == 'b':
-        update.message.reply_text('НЕ ПОВЕЗЛО? ПОПРОБУЙ ЕЩЕ РАЗ')
+        print('НЕ ПОВЕЗЛО? ПОПРОБУЙ ЕЩЕ РАЗ')
         sqlite_connection = sqlite3.connect('ananas_bd.sqlite')  # импортируем базу данных
         cursor = sqlite_connection.cursor()
         sqlite_insert_query = cursor.execute("""DELETE from money
@@ -498,13 +489,13 @@ def pobeda(who_wins, update, context):
         cursor.close()
         money = str(int(money) - 50)
         update.message.reply_text('Ваш баланс: ' + str(money))
-        
+        card_game = False
         return ConversationHandler.END
 
 
 def stop(update, context):
     global already_started
-#    already_started = 0
+    already_started = 0
     update.message.reply_text('Выходим...', reply_markup=ReplyKeyboardRemove())
     return ConversationHandler.END
 
@@ -525,37 +516,6 @@ def go(update, context):
     return LOGIN_NIKNAME
 
 
-def exit_during_moves(update, context):
-    global cards_game, sure
-    answer = update.message.text
-    print(f'Ответ во время выхода: {answer}')
-
-    if answer.lower() == 'да':
-        print(f'Выходим во время игры...')
-        update.message.reply_text('Вы вышли из карт')
-        sure = False
-        cards_game = False
-        select_money = cur.execute('''SELECT money FROM money WHERE nik = ?''', (nik,)).fetchall()
-        print(select_money)
-
-        for i in select_money:
-            for j in i:
-                update_value = cur.execute('''UPDATE money SET money = ? WHERE nik = ?''',
-                                           (int(j) - 50, nik)).fetchall()
-                con.commit()
-
-        update.message.reply_text('\nВы вышли из карт'
-                                  '\nВведите <карты> или <монетка> для игры')
-        koloda = koloda_forever
-        player.clear()
-        bot.clear()
-        return DEFINE
-
-    elif answer.lower() == 'нет':
-        update.message.reply_text('Вы не вышли из карт')
-        sure = False
-
-
 def define_card(update, context):
     global card, answering, n_player_cards, player
     card = update.message.text      # получаем сообщение из player_choose_card
@@ -566,17 +526,12 @@ def define_card(update, context):
         player.append(bot_answer_answer)
         n_player_cards += 1
         bot_move(update, context)
-    else:
-        if card.lower() == 'выход':
-            update.message.reply_text('Вы уверены что хотите выйти?'
-                                      '\nВаши 50 очков не сохранятся')
-            return EXIT_DURING_MOVES
-        else:
-            try:
-                card = int(card)
-            except ValueError:
-                update.message.reply_text('Вы ввели не число!')
-                return DEFINE_CARD
+    elif answering == 'player' and card != 'взять':
+        try:
+            card = int(card)
+        except ValueError:
+            update.message.reply_text('Вы ввели не число!')
+            return DEFINE_CARD
 
         print(f'Карта дефайн кард {card}')
         print(answering)
@@ -585,7 +540,6 @@ def define_card(update, context):
             if answering == 'bot':
                 print(f'Выбранная карта: {player[card - 1]}')
                 return player_move(update, context)
-
             elif answering == 'player':
                 print(f'Выбранная для ответа карта: {player[card - 1]}')
                 return player_answer(bot_answer_answer, update, context)
@@ -715,13 +669,11 @@ def coin(update, context):
 
 
 def flip(update, context):
-    global money
+    global money, money_game
     reply_keyboard = [['Орел'],
                       ['Решка']]
     markup = ReplyKeyboardMarkup(reply_keyboard)
     side = update.message.text
-    photo_answer = ''
-    chat_id = update.message.chat.id
     if side.lower() != 'орел' and side.lower() != 'выход' and side.lower() != 'решка':
         coin(update, context)
     else:
@@ -731,28 +683,21 @@ def flip(update, context):
         else:
             if side.lower() == 'орел':
                 side = '1'
-                photo_answer = 'img/1'
             elif side.lower() == 'выход':
                 update.message.reply_text('Вы вышли из игры в монетку \n'
                                           'Если хотите вернуться обратно, то напишите <монетка> \n'
                                           'Если хотите поиграть в карты напишите <карты>',
                                           reply_markup=ReplyKeyboardRemove())
-                
+                money_game = False
                 return DEFINE
             else:
                 side = '2'
-                photo_answer = 'img/2'
             response = requests.post(
                 'https://www.random.org/integers/?num=1&min=1&max=2&col=1&base=10&format=plain&rnd=new')
             if str(response.text)[0] == side:
-                photo_answer = f'{photo_answer}_win.jpg'  # фото
-                telegram_bot.send_photo(chat_id, open(photo_answer, 'rb'))
-                update.message.reply_text('Вы выиграли',
-                                          reply_markup=markup)
+                update.message.reply_text('Вы выиграли', reply_markup=markup)
                 money = str(int(money) + 50)
             else:
-                photo_answer = f'img/{str(response.text)[0]}_defeat.jpg'
-                telegram_bot.send_photo(chat_id, open(photo_answer, 'rb'))
                 update.message.reply_text('Вы проиграли', reply_markup=markup)
                 money = str(int(money) - 50)
 
@@ -773,66 +718,38 @@ def flip(update, context):
 
 
 def defining_command(update, context):
-    global already_started, cards_game, koloda, koloda_forever, player, bot, nik, sure
+    global already_started, money_game, card_game
     command = update.message.text
     print(command)
 
-    if command.lower() == 'карты':
-        print('\nНачало игры в карты')
-        cards_game = True
-        return game(update, context)
+    if money_game is False and card_game is False:
+        if command.lower() == 'карты':
+            card_game = True
+            print('\nНачало игры в карты')
+            return game(update, context)
 
-    elif command.lower() == 'монетка':
-        print('\nНачало игры в монетку')
+        elif command.lower() == 'монетка':
+            print('\nНачало игры в монетку')
+            money_game = True
+            return coin(update, context)
 
-        return coin(update, context)
+    else:
+        if command == 'Посмотреть карты':
+            print('\nПросмотр карт')
+            return show_cards(update, context)
 
-    elif command.lower() == 'посмотреть карты':
-        print('\nПросмотр карт')
-        return show_cards(update, context)
+        elif command == 'Управление':
+            print('\nУправление')
+            return controls(update, context)
 
-    elif command.lower() == 'управление':
-        print('\nУправление')
-        return controls(update, context)
+        elif command == 'Сделать ход':
+            print('\nХод игрока')
+            return player_choose_card(update, context)
 
-    elif command.lower() == 'сделать ход':
-        print('\nХод игрока')
-        return player_choose_card(update, context)
-
-    elif command.lower() == 'выход':
-        if cards_game is False:
+        elif command == 'Выход':
             print('\nВыход')
             already_started = 0
             return stop(update, context)
-        else:
-            print('\nВыход из карт')
-            update.message.reply_text('\nВы уверены что хотите выйти?'
-                                      '\nВаши 50 монет не сохранятся')
-            sure = True
-            return DEFINE
-
-    elif cards_game is True and sure is True:
-        if command.lower() == 'да':
-            cards_game = False
-            sure = False
-            select_money = cur.execute('''SELECT money FROM money WHERE nik = ?''', (nik, )).fetchall()
-            print(select_money)
-
-            for i in select_money:
-                for j in i:
-                    update_value = cur.execute('''UPDATE money SET money = ? WHERE nik = ?''', (int(j) - 50, nik)).fetchall()
-                    con.commit()
-
-            update.message.reply_text('\nВы вышли из карт'
-                                      '\nВведите <карты> или <монетка> для игры')
-            koloda = koloda_forever
-            player.clear()
-            bot.clear()
-            return DEFINE
-
-        elif command.lower() == 'нет':
-            update.message.reply_text('Вы не вышли из карт')
-            sure = False
 
 
 def main():
@@ -845,8 +762,7 @@ def main():
             LOGIN_PASSWORD: [MessageHandler(Filters.text & ~Filters.command, login_password_one_more)],
             REGISTER: [MessageHandler(Filters.text & ~Filters.command, register)],
             START: [MessageHandler(Filters.text & ~Filters.command, go)],
-            COIN: [MessageHandler(Filters.text & ~Filters.command, flip)],
-            EXIT_DURING_MOVES: [MessageHandler(Filters.text & ~Filters.command, exit_during_moves)]
+            COIN: [MessageHandler(Filters.text & ~Filters.command, flip)]
         },
         fallbacks=[CommandHandler('stop', stop), CommandHandler('controls', controls),
                    CommandHandler('show_cards', show_cards), CommandHandler('player_choose_card', player_choose_card),
