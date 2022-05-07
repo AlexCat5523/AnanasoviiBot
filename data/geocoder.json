@@ -1,0 +1,614 @@
+{
+  "type": "FeatureCollection",
+  "properties": {
+    "ResponseMetaData": {
+      "SearchResponse": {
+        "found": 20,
+        "display": "multiple",
+        "boundedBy": [
+          [
+            39.6394605,
+            43.55207695
+          ],
+          [
+            39.7693305,
+            43.68196853
+          ]
+        ]
+      },
+      "SearchRequest": {
+        "request": "Магнит",
+        "skip": 0,
+        "results": 10,
+        "boundedBy": [
+          [
+            39.437316,
+            43.36639573
+          ],
+          [
+            39.957316,
+            43.88639576
+          ]
+        ]
+      }
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.69532,
+          43.627976
+        ]
+      },
+      "properties": {
+        "name": "Магнит",
+        "description": "Крымская ул., 89, микрорайон Мамайка, Сочи, Россия",
+        "boundedBy": [
+          [
+            39.691486,
+            43.624698
+          ],
+          [
+            39.699697,
+            43.630662
+          ]
+        ],
+        "CompanyMetaData": {
+          "id": "131812833417",
+          "name": "Магнит",
+          "address": "Россия, Краснодарский край, Сочи, микрорайон Мамайка, Крымская улица, 89",
+          "url": "https://magnit.ru/",
+          "Phones": [
+            {
+              "type": "phone",
+              "formatted": "8 (800) 200-90-02"
+            }
+          ],
+          "Categories": [
+            {
+              "class": "supermarket",
+              "name": "Супермаркет"
+            }
+          ],
+          "Hours": {
+            "text": "ежедневно, 08:00–22:00",
+            "Availabilities": [
+              {
+                "Intervals": [
+                  {
+                    "from": "08:00:00",
+                    "to": "22:00:00"
+                  }
+                ],
+                "Everyday": true
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.714211,
+          43.607405
+        ]
+      },
+      "properties": {
+        "name": "Магнит",
+        "description": "ул. Пирогова, 30, микрорайон Новый Сочи, Сочи, Россия",
+        "boundedBy": [
+          [
+            39.71036,
+            43.603956
+          ],
+          [
+            39.71857,
+            43.609922
+          ]
+        ],
+        "CompanyMetaData": {
+          "id": "31720854217",
+          "name": "Магнит",
+          "address": "Россия, Краснодарский край, Сочи, микрорайон Новый Сочи, улица Пирогова, 30",
+          "url": "https://magnit.ru/",
+          "Phones": [
+            {
+              "type": "phone",
+              "formatted": "8 (800) 200-90-02"
+            },
+            {
+              "type": "phone",
+              "formatted": "+7 (861) 210-98-10"
+            }
+          ],
+          "Categories": [
+            {
+              "class": "supermarket",
+              "name": "Супермаркет"
+            }
+          ],
+          "Hours": {
+            "text": "ежедневно, 08:00–22:00",
+            "Availabilities": [
+              {
+                "Intervals": [
+                  {
+                    "from": "08:00:00",
+                    "to": "22:00:00"
+                  }
+                ],
+                "Everyday": true
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.69914,
+          43.632123
+        ]
+      },
+      "properties": {
+        "name": "Магнит",
+        "description": "Волжская ул., 32, микрорайон Мамайка, Сочи, Россия",
+        "boundedBy": [
+          [
+            39.695259,
+            43.629442
+          ],
+          [
+            39.703469,
+            43.635406
+          ]
+        ],
+        "CompanyMetaData": {
+          "id": "132200763466",
+          "name": "Магнит",
+          "address": "Россия, Краснодарский край, Сочи, микрорайон Мамайка, Волжская улица, 32",
+          "url": "https://magnit.ru/",
+          "Phones": [
+            {
+              "type": "phone",
+              "formatted": "8 (800) 200-90-02"
+            }
+          ],
+          "Categories": [
+            {
+              "class": "supermarket",
+              "name": "Супермаркет"
+            }
+          ],
+          "Hours": {
+            "text": "ежедневно, 08:00–22:00",
+            "Availabilities": [
+              {
+                "Intervals": [
+                  {
+                    "from": "08:00:00",
+                    "to": "22:00:00"
+                  }
+                ],
+                "Everyday": true
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.707113,
+          43.631833
+        ]
+      },
+      "properties": {
+        "name": "Магнит",
+        "description": "Виноградная ул., 195/13, Сочи, Россия",
+        "boundedBy": [
+          [
+            39.702984,
+            43.628861
+          ],
+          [
+            39.711195,
+            43.634825
+          ]
+        ],
+        "CompanyMetaData": {
+          "id": "119596616265",
+          "name": "Магнит",
+          "address": "Россия, Краснодарский край, Сочи, Центральный район, Виноградная улица, 195/13",
+          "url": "https://magnit.ru/",
+          "Phones": [
+            {
+              "type": "phone",
+              "formatted": "8 (800) 200-90-02"
+            }
+          ],
+          "Categories": [
+            {
+              "class": "supermarket",
+              "name": "Супермаркет"
+            }
+          ],
+          "Hours": {
+            "text": "ежедневно, 08:00–22:00",
+            "Availabilities": [
+              {
+                "Intervals": [
+                  {
+                    "from": "08:00:00",
+                    "to": "22:00:00"
+                  }
+                ],
+                "Everyday": true
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.700474,
+          43.633467
+        ]
+      },
+      "properties": {
+        "name": "Магнит",
+        "description": "Анапская ул., 19, микрорайон Мамайка, Сочи, Россия",
+        "boundedBy": [
+          [
+            39.696409,
+            43.630395
+          ],
+          [
+            39.704619,
+            43.636358
+          ]
+        ],
+        "CompanyMetaData": {
+          "id": "19346884810",
+          "name": "Магнит",
+          "address": "Россия, Краснодарский край, Сочи, микрорайон Мамайка, Анапская улица, 19",
+          "url": "https://magnit.ru/",
+          "Phones": [
+            {
+              "type": "phone",
+              "formatted": "8 (800) 200-90-02"
+            }
+          ],
+          "Categories": [
+            {
+              "class": "supermarket",
+              "name": "Супермаркет"
+            }
+          ],
+          "Hours": {
+            "text": "ежедневно, 08:00–22:00",
+            "Availabilities": [
+              {
+                "Intervals": [
+                  {
+                    "from": "08:00:00",
+                    "to": "22:00:00"
+                  }
+                ],
+                "Everyday": true
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.719477,
+          43.619673
+        ]
+      },
+      "properties": {
+        "name": "Магнит",
+        "description": "Виноградная ул., 166Г, Сочи, Россия",
+        "boundedBy": [
+          [
+            39.715435,
+            43.616762
+          ],
+          [
+            39.723646,
+            43.622727
+          ]
+        ],
+        "CompanyMetaData": {
+          "id": "10507206807",
+          "name": "Магнит",
+          "address": "Россия, Краснодарский край, Сочи, Центральный район, Виноградная улица, 166Г",
+          "url": "https://magnit.ru/",
+          "Phones": [
+            {
+              "type": "phone",
+              "formatted": "8 (800) 200-90-02"
+            }
+          ],
+          "Categories": [
+            {
+              "class": "supermarket",
+              "name": "Супермаркет"
+            }
+          ],
+          "Hours": {
+            "text": "ежедневно, 08:00–22:30",
+            "Availabilities": [
+              {
+                "Intervals": [
+                  {
+                    "from": "08:00:00",
+                    "to": "22:30:00"
+                  }
+                ],
+                "Everyday": true
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.696161,
+          43.630272
+        ]
+      },
+      "properties": {
+        "name": "Магнит",
+        "description": "Полтавская ул., 32/14, микрорайон Мамайка, Сочи, Россия",
+        "boundedBy": [
+          [
+            39.691998,
+            43.627178
+          ],
+          [
+            39.700209,
+            43.633141
+          ]
+        ],
+        "CompanyMetaData": {
+          "id": "89233476409",
+          "name": "Магнит",
+          "address": "Россия, Краснодарский край, Сочи, микрорайон Мамайка, Полтавская улица, 32/14",
+          "url": "https://magnit.ru/",
+          "Phones": [
+            {
+              "type": "phone",
+              "formatted": "8 (800) 200-90-02"
+            }
+          ],
+          "Categories": [
+            {
+              "class": "supermarket",
+              "name": "Супермаркет"
+            }
+          ],
+          "Hours": {
+            "text": "ежедневно, 08:00–22:00",
+            "Availabilities": [
+              {
+                "Intervals": [
+                  {
+                    "from": "08:00:00",
+                    "to": "22:00:00"
+                  }
+                ],
+                "Everyday": true
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.64921,
+          43.655148
+        ]
+      },
+      "properties": {
+        "name": "Магнит",
+        "description": "Старошоссейная ул., 20/1, п. г. т. Дагомыс, Россия",
+        "boundedBy": [
+          [
+            39.644989,
+            43.652171
+          ],
+          [
+            39.6532,
+            43.658132
+          ]
+        ],
+        "CompanyMetaData": {
+          "id": "84696885933",
+          "name": "Магнит",
+          "address": "Россия, Краснодарский край, городской округ Сочи, посёлок городского типа Дагомыс, Старошоссейная улица, 20/1",
+          "url": "https://magnit.ru/",
+          "Phones": [
+            {
+              "type": "phone",
+              "formatted": "8 (800) 200-90-02"
+            }
+          ],
+          "Categories": [
+            {
+              "class": "supermarket",
+              "name": "Супермаркет"
+            }
+          ],
+          "Hours": {
+            "text": "ежедневно, 08:00–22:00",
+            "Availabilities": [
+              {
+                "Intervals": [
+                  {
+                    "from": "08:00:00",
+                    "to": "22:00:00"
+                  }
+                ],
+                "Everyday": true
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.710518,
+          43.632954
+        ]
+      },
+      "properties": {
+        "name": "Магнит",
+        "description": "Целинная ул., 8Б, Сочи, Россия",
+        "boundedBy": [
+          [
+            39.706416,
+            43.630088
+          ],
+          [
+            39.714627,
+            43.636051
+          ]
+        ],
+        "CompanyMetaData": {
+          "id": "110280558798",
+          "name": "Магнит",
+          "address": "Россия, Краснодарский край, Сочи, Целинная улица, 8Б",
+          "url": "https://magnit.ru/",
+          "Phones": [
+            {
+              "type": "phone",
+              "formatted": "8 (800) 200-90-02"
+            }
+          ],
+          "Categories": [
+            {
+              "class": "supermarket",
+              "name": "Супермаркет"
+            }
+          ],
+          "Hours": {
+            "text": "ежедневно, 08:00–22:00",
+            "Availabilities": [
+              {
+                "Intervals": [
+                  {
+                    "from": "08:00:00",
+                    "to": "22:00:00"
+                  }
+                ],
+                "Everyday": true
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.734746,
+          43.572203
+        ]
+      },
+      "properties": {
+        "name": "Магнит",
+        "description": "Курортный просп., 73, Сочи, Россия",
+        "boundedBy": [
+          [
+            39.730446,
+            43.569263
+          ],
+          [
+            39.738656,
+            43.575233
+          ]
+        ],
+        "CompanyMetaData": {
+          "id": "1255966696",
+          "name": "Магнит",
+          "address": "Россия, Краснодарский край, Сочи, Курортный проспект, 73",
+          "url": "https://magnit.ru/",
+          "Phones": [
+            {
+              "type": "phone",
+              "formatted": "8 (800) 200-90-02"
+            }
+          ],
+          "Categories": [
+            {
+              "class": "malls",
+              "name": "Магазин парфюмерии и косметики"
+            },
+            {
+              "class": "malls",
+              "name": "Магазин посуды"
+            },
+            {
+              "class": "supermarket",
+              "name": "Супермаркет"
+            },
+            {
+              "class": "malls",
+              "name": "Магазин хозтоваров и бытовой химии"
+            }
+          ],
+          "Hours": {
+            "text": "ежедневно, 00:05–23:50",
+            "Availabilities": [
+              {
+                "Intervals": [
+                  {
+                    "from": "00:05:00",
+                    "to": "23:50:00"
+                  }
+                ],
+                "Everyday": true
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

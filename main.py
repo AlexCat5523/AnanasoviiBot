@@ -10,6 +10,7 @@ from time import sleep
 import sys
 import sqlite3
 import requests
+import json
 
 updater = Updater('5102501109:AAEq0uyJj_Gy4pb3QbyHQMjzU7ayV26Q7iE', use_context=True)
 telegram_bot = telegram.Bot(token='5102501109:AAEq0uyJj_Gy4pb3QbyHQMjzU7ayV26Q7iE')
@@ -27,7 +28,9 @@ print(f'Что такое {money}')
 init()
 running = True
 cards_game = False  # начала игры в карты
-sure = False
+sure = False    # выходим или нет
+bot_take_card = False
+show_weather = False
 
 cards_n = 36
 cards = ['PIK', 'TRE', 'CHER', 'BUB']
@@ -111,6 +114,8 @@ koloda_forever = ['Туз_BUB', 'Король_BUB', 'Дама_BUB', 'Валет_
                   'Семь_CHER', 'Шесть_CHER',
                   'Туз_TRE', 'Король_TRE', 'Дама_TRE', 'Валет_TRE', 'Десять_TRE', 'Девять_TRE', 'Восемь_TRE',
                   'Семь_TRE', 'Шесть_TRE']
+
+# geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"  # геокодер (для нахождения положения)
 
 
 def show_cards(update, context):
@@ -218,7 +223,7 @@ def player_choose_card(update, context):
 
 
 def player_move(update, context):
-    global n_bot_cards, n_player_cards, cozir_flag, card, answering
+    global n_bot_cards, n_player_cards, cozir_flag, card, answering, bot_take_card
     answering = 'bot'
     print(f'Карта плэйер мува {card}')
     move = True
@@ -229,7 +234,8 @@ def player_move(update, context):
 
         if n_player_cards == 0:     # если число карт == 0
             update.message.reply_text('Вы молодец!')
-            pobeda('p', update, context)
+            return pobeda('p', update, context)
+
         del player[player.index(player[card - 1])]
 
         if n_player_cards < 6:      # добавление карт if number of cards < 6
@@ -245,8 +251,12 @@ def player_move(update, context):
                 n_player_cards += 1
 
         bot_answ(update, context, answ)
-        update.message.reply_text('Теперь ходит бот')
-        bot_move(update, context)
+        if bot_take_card:
+            player_choose_card(update, context)
+            bot_take_card = False
+        else:
+            update.message.reply_text('Теперь ходит бот')
+            bot_move(update, context)
         move = False
 
 
@@ -324,45 +334,45 @@ def bot_move(update, context):
     answ = []
     answering = 'player'
 
-    for i in bot:
-        if len(koloda) > 0:
-            if i.split('_')[1] == cozir.split('_')[1]:
-                pass
-            else:
-                spisok_card[i.split('_')[0]].append(i)
-        else:
-            spisok_card[i.split('_')[0]].append(i)
-
-    for i in spisok_card.keys():
-        if answ == []:
-            if len(spisok_card[i]) >= 2:
-                answ = spisok_card[i]
-            elif len(answ) < 2 and bool(spisok_card[i]):
-                answ = spisok_card[i]
-
-    print(f'\nБот атакует {answ[0]}')
-    del bot[bot.index(answ[0])]
-    n_bot_cards -= 1
-
     if n_bot_cards == 0:    # победа бота
         update.message.reply_text('БОТ ВЫИГРАЛ')
-        pobeda('b', update, context)
+        return pobeda('b', update, context)
+    else:
+        for i in bot:
+            if len(koloda) > 0:
+                if i.split('_')[1] == cozir.split('_')[1]:
+                    pass
+                else:
+                    spisok_card[i.split('_')[0]].append(i)
+            else:
+                spisok_card[i.split('_')[0]].append(i)
 
-    if n_bot_cards < 6:
-        if len(koloda) != 0:
-            card = random.choice(koloda)
-            bot.append(card)
-            del koloda[koloda.index(card)]
-            n_bot_cards += 1
+        for i in spisok_card.keys():
+            if answ == []:
+                if len(spisok_card[i]) >= 2:
+                    answ = spisok_card[i]
+                elif len(answ) < 2 and bool(spisok_card[i]):
+                    answ = spisok_card[i]
 
-        elif cozir_flag:
-            bot.append(cozir)
-            cozir_flag = False
-            n_bot_cards += 1
+        print(f'\nБот атакует {answ[0]}')
+        del bot[bot.index(answ[0])]
+        n_bot_cards -= 1
 
-    print(f'Ошибка от бота: {answ[0]}, {type(answ[0])}')
-    update.message.reply_text('Бот атакует: ' + answ[0])
-    player_choose_answer(answ[0], update, context)
+        if n_bot_cards < 6:
+            if len(koloda) != 0:
+                card = random.choice(koloda)
+                bot.append(card)
+                del koloda[koloda.index(card)]
+                n_bot_cards += 1
+
+            elif cozir_flag:
+                bot.append(cozir)
+                cozir_flag = False
+                n_bot_cards += 1
+
+        print(f'Ошибка от бота: {answ[0]}, {type(answ[0])}')
+        update.message.reply_text('Бот атакует: ' + answ[0])
+        player_choose_answer(answ[0], update, context)
 
 
 def bot_taking_cards(carta, update, context):
@@ -370,11 +380,10 @@ def bot_taking_cards(carta, update, context):
     bot.append(carta)
     n_bot_cards += 1
     answering = 'bot'
-    return player_choose_card(update, context)
 
 
 def bot_answ(update, context, movek):
-    global bot, vel_card, cozir, n_player_cards, n_bot_cards, cozir_flag, answering
+    global bot, vel_card, cozir, n_player_cards, n_bot_cards, cozir_flag, answering, bot_take_card
     answering = 'bot'
     answ = ''
     print(f'\nКарты бота: {bot}')
@@ -425,7 +434,9 @@ def bot_answ(update, context, movek):
                         pass
         if answ == '':
             update.message.reply_text('Бот не может отбиться, бот принимает')
+            bot_take_card = True
             return bot_taking_cards(movek, update, context)   # здесь начинается ошибка
+
         else:
             update.message.reply_text('Бот бьет ' + movek + ' картой ' + answ)
             del bot[bot.index(answ)]
@@ -460,13 +471,14 @@ def game(update, context):
 
 
 def pobeda(who_wins, update, context):
-    global money, card_game
+    global money, cards_game, player, bot, koloda_forever, koloda, sure
+
     if who_wins == 'p':
         update.message.reply_text('МОЛОДЕЦ')
         sqlite_connection = sqlite3.connect('ananas_bd.sqlite')  # импортируем базу данных
         cursor = sqlite_connection.cursor()
         sqlite_insert_query = cursor.execute("""DELETE from money
-        where nik = ?""", (nik)).fetchall()
+        where nik = ?""", (nik, )).fetchall()
         sqlite_connection.commit()
         cursor.close()
         con = sqlite3.connect("ananas_bd.sqlite")  # импортируем базу данных
@@ -478,15 +490,20 @@ def pobeda(who_wins, update, context):
         cursor.close()
         money = str(int(money) + 50)
         update.message.reply_text('Ваш баланс: ' + str(money))
-        
-        return ConversationHandler.END
+
+        koloda = koloda_forever
+        player.clear()
+        bot.clear()
+        cards_game = False
+        sure = False
+        return DEFINE
 
     if who_wins == 'b':
         update.message.reply_text('НЕ ПОВЕЗЛО? ПОПРОБУЙ ЕЩЕ РАЗ')
         sqlite_connection = sqlite3.connect('ananas_bd.sqlite')  # импортируем базу данных
         cursor = sqlite_connection.cursor()
         sqlite_insert_query = cursor.execute("""DELETE from money
-        where nik = ?""", (nik)).fetchall()
+        where nik = ?""", (nik, )).fetchall()
         sqlite_connection.commit()
         cursor.close()
         con = sqlite3.connect("ananas_bd.sqlite")  # импортируем базу данных
@@ -498,8 +515,13 @@ def pobeda(who_wins, update, context):
         cursor.close()
         money = str(int(money) - 50)
         update.message.reply_text('Ваш баланс: ' + str(money))
-        
-        return ConversationHandler.END
+
+        koloda = koloda_forever
+        player.clear()
+        bot.clear()
+        cards_game = False
+        sure = False
+        return DEFINE
 
 
 def stop(update, context):
@@ -520,7 +542,7 @@ def controls(update, context):
 
 
 def go(update, context):
-    update.message.reply_text('Доброго времени суток! Пожалуйста войдите в свой аккаунт или зарегистрируйтесь')
+    update.message.reply_text('Здравствуйте! Пожалуйста войдите в свой аккаунт или зарегистрируйтесь')
     update.message.reply_text('Введите свой никнейм')
     return LOGIN_NIKNAME
 
@@ -559,6 +581,7 @@ def exit_during_moves(update, context):
 def define_card(update, context):
     global card, answering, n_player_cards, player
     card = update.message.text      # получаем сообщение из player_choose_card
+    print(f'Здесь начинается дефайн кард!')
 
     if answering == 'player' and card == 'взять':
         print(f'Игрок берёт карту: {bot_answer_answer}')
@@ -623,7 +646,8 @@ def login_password(update, context):
 def login_password_one_more(update, context):
     global nik, money
     reply_keyboard = [['Карты'],
-                      ['Монетка']]
+                      ['Монетка'],
+                      ['Посмотреть погоду']]
     markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
     con = sqlite3.connect("ananas_bd.sqlite")  # импортируем базу данных
     cur = con.cursor()
@@ -647,7 +671,8 @@ def login_password_one_more(update, context):
         if already_started == 0:
             if int(money) >= 50:
                 update.message.reply_text('Добро пожаловать в игру\n'
-                                          'Будем играть в карты или в монетку?', reply_markup=markup)
+                                          'Будем играть в карты или в монетку?'
+                                          '\nА может быть хочешь узнать погоду?', reply_markup=markup)
                 update.message.reply_text('Ваш баланс: ' + str(money))
                 already_started = 1
                 return DEFINE
@@ -691,7 +716,7 @@ def register(update, context):
         if already_started == 0:
             update.message.reply_text('Добро пожаловать в игру\n'
                                       'Будем играть в карты или в монетку?\n'
-                                      '<карты> или <монетка>')
+                                      'Может посмотрим погоду?')
             already_started = 1
             return DEFINE
         else:
@@ -772,10 +797,40 @@ def flip(update, context):
             cursor.close()
 
 
+def users_output(update, context):  # для обработки ввода для магнита и т.п
+    global show_weather
+    show_weather = True
+    return DEFINE
+
+
+def find_weather(update, context, city):
+    forecast_api = 'e9d384fccd160b5870e32f1deb7cd3b8'
+    url = f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={forecast_api}&lang=ru'
+    response = requests.get(url)
+    json_response = response.json()
+    temperature = json_response['main']['temp']
+    temperature = round(temperature - 273.1, 1)
+
+    if json_response['weather'][0]['main'] == 'Clouds':
+        update.message.reply_text(f'Облачно, но можно пойти в магазинчик. '
+                                  f'\nТемпература: {temperature} \u2103')
+    elif json_response['weather'][0]['main'] == 'Rain':
+        update.message.reply_text(f'Дождь, лучше остаться доме. '
+              f'\nТемпература: {temperature} \u2103')
+    elif json_response['weather'][0]['main'] == 'Clear':
+        update.message.reply_text(f'Солнечно, надо идти в магазинчик. '
+              f'\nТемпература: {temperature} \u2103')
+    elif json_response['weather'][0]['main'] == 'Snow':
+        update.message.reply_text(f'Снег, но можно сходить в магазин. '
+              f'\nТемпература: {temperature} \u2103')
+
+    return DEFINE
+
+
 def defining_command(update, context):
-    global already_started, cards_game, koloda, koloda_forever, player, bot, nik, sure
+    global already_started, cards_game, koloda, koloda_forever, player, bot, nik, sure, show_weather
     command = update.message.text
-    print(command)
+    print(f'Команда: {command}')
 
     if command.lower() == 'карты':
         print('\nНачало игры в карты')
@@ -787,29 +842,36 @@ def defining_command(update, context):
 
         return coin(update, context)
 
-    elif command.lower() == 'посмотреть карты':
-        print('\nПросмотр карт')
-        return show_cards(update, context)
-
-    elif command.lower() == 'управление':
-        print('\nУправление')
-        return controls(update, context)
-
-    elif command.lower() == 'сделать ход':
-        print('\nХод игрока')
-        return player_choose_card(update, context)
+    elif command.lower() == 'посмотреть погоду':
+        update.message.reply_text('Введите своё местоположение (с улицей и адресом) в формате:'
+                                  '\nСочи, улица Горького, 44')
+        return users_output(update, context)
 
     elif command.lower() == 'выход':
-        if cards_game is False:
+        if cards_game is False and show_weather is False:
             print('\nВыход')
             already_started = 0
             return stop(update, context)
+        elif show_weather is True:
+            print('\nВыход из погоды')
+            update.message.reply_text('Вы вышли из просмотра погоды')
+            show_weather = False
+            return DEFINE
         else:
             print('\nВыход из карт')
             update.message.reply_text('\nВы уверены что хотите выйти?'
                                       '\nВаши 50 монет не сохранятся')
             sure = True
             return DEFINE
+
+    elif show_weather is True:
+        if command.lower() != 'выход' and command.isdigit() is False:
+            return find_weather(update, context, command)
+        else:
+            if command.isdigit() is True:
+                update.message.reply_text('Вы ввели число!'
+                                          '\nВведите запрос заново или введите <выход>')
+                return users_output(update, context)    # может появиться ошибка с двумя сообщениями
 
     elif cards_game is True and sure is True:
         if command.lower() == 'да':
@@ -834,6 +896,23 @@ def defining_command(update, context):
             update.message.reply_text('Вы не вышли из карт')
             sure = False
 
+    if cards_game is True:
+        if command.lower() == 'посмотреть карты':
+            print('\nПросмотр карт')
+            return show_cards(update, context)
+
+        elif command.lower() == 'управление':
+            print('\nУправление')
+            return controls(update, context)
+
+        elif command.lower() == 'сделать ход':
+            print('\nХод игрока')
+            return player_choose_card(update, context)
+
+        elif command == 'INSTANT_WIN':
+            print('\nADMIN: мгновенная победа')
+            return pobeda('b', update, context)
+
 
 def main():
     conv_handler = ConversationHandler(
@@ -850,7 +929,8 @@ def main():
         },
         fallbacks=[CommandHandler('stop', stop), CommandHandler('controls', controls),
                    CommandHandler('show_cards', show_cards), CommandHandler('player_choose_card', player_choose_card),
-                   CommandHandler('player_choose_answer', player_choose_answer)]
+                   CommandHandler('player_choose_answer', player_choose_answer),
+                   CommandHandler('users_output', users_output)]
     )
     dp.add_handler(conv_handler)
 

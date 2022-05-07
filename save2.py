@@ -563,3 +563,32 @@ def main():
 # Запускаем функцию main() в случае запуска скрипта.
 if __name__ == '__main__':
     main()
+
+
+@bot.message_handler(commands=['start'])
+def location(message):
+    markup = types.ReplyKeyboardMarkup()
+    button = types.KeyboardButton('Локация', request_location=True)
+    markup.row(button)
+
+    bot.send_message(message.chat.id, 'Ananas', reply_markup=markup)
+
+
+bot.polling()
+
+return DEFINE
+if message != 'Выход':
+    geocoder_params = {
+        "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
+        "geocode": message,
+        "format": "json"}
+
+    response = requests.get(geocoder_api_server, params=geocoder_params)
+    if response:
+        return find_weather(update, context, message)
+    else:
+        update.message.reply_text('Вы ввели что-то неверно.'
+                                  '\nВведите заново или <выход> для выхода.')
+else:
+    update.message.reply_text('Вы вышли из просмотра погоды')
+    return DEFINE
