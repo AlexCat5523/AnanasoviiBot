@@ -1,3 +1,3 @@
 # AnanasoviiBot
 Telegram Bot
-Запускать main.py
+Запускать Class_game.py
