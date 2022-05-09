@@ -115,7 +115,7 @@ koloda_forever = ['Туз_BUB', 'Король_BUB', 'Дама_BUB', 'Валет_
                   'Туз_TRE', 'Король_TRE', 'Дама_TRE', 'Валет_TRE', 'Десять_TRE', 'Девять_TRE', 'Восемь_TRE',
                   'Семь_TRE', 'Шесть_TRE']
 
-# geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"  # геокодер (для нахождения положения)
+geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"  # геокодер (для нахождения положения)
 
 
 def show_cards(update, context):

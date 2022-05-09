@@ -50,7 +50,6 @@ def find_closest():
 
 
 def find_weather(city):
-    AUTH = HTTPBasicAuth('net090906@mail.ru', 'ananas1')  # для подключения к OpenWeather
     forecast_api = 'e9d384fccd160b5870e32f1deb7cd3b8'
     url = f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={forecast_api}&lang=ru'
     response = requests.get(url)
@@ -68,9 +67,9 @@ def find_weather(city):
         print(f'Снег, но можно сходить в магазин. Температура: {temperature} \u2103')
 
 
-object_to_find('Сочи, улица Волжская, 70')
-find_closest()
-find_weather('Сочи')
+# object_to_find('Сочи, улица Волжская, 70')
+# find_closest()
+find_weather('Прага')
 
 # pos = json_response['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['Point']['pos']
 # print(pos)

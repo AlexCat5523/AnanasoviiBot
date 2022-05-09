@@ -99,7 +99,7 @@ class Class_game:
 
         self.player = list()
         self.bot = list()
-        self.first_turn = 'bot'  # можно поставить на player, чтобы он всегда начинал ходить первым
+        self.first_turn = ''  # можно поставить на player, чтобы он всегда начинал ходить первым
         self.cozir = ''
         self.koloda = ['Туз_BUB', 'Король_BUB', 'Дама_BUB', 'Валет_BUB', 'Десять_BUB', 'Девять_BUB', 'Восемь_BUB',
                        'Семь_BUB',
@@ -457,20 +457,16 @@ class Class_game:
                 self.controls(update, context)
             elif self.first_turn == 'bot':
                 print('Бот ходит')
-                self.bot_move(update, context)
+                self.controls(update, context)
 
     def pobeda(self, who_wins, update, context):
         if who_wins == 'p':
             update.message.reply_text('МОЛОДЕЦ')
-            sqlite_insert_query = self.cur.execute("""DELETE from money
-            where nik = ?""", (self.nik,)).fetchall()
-            self.con.commit()
 
-            sqlite_insert_query2 = """INSERT INTO money VALUES ('""" + self.nik + "', '" + str(
-                int(self.money) + 50) + "')"
-            count = self.cur.execute(sqlite_insert_query2)
-            self.con.commit()
-            self.cursor.close()
+            select_money = self.cur.execute('''SELECT money FROM money WHERE nik = ?''', (self.nik,)).fetchall()
+            for i in select_money:
+                self.cur.execute('''UPDATE money SET money = ? WHERE nik = ?''', (int(i[0]), self.nik,))
+                self.cur.close()
             money = str(int(self.money) + 50)
             update.message.reply_text('Ваш баланс: ' + str(self.money))
 
@@ -507,7 +503,6 @@ class Class_game:
         self.already_started = 0
         update.message.reply_text('Выходим...', reply_markup=ReplyKeyboardRemove())
         select_money = self.cur.execute('''SELECT money FROM money WHERE nik = ?''', (self.nik,)).fetchall()
-        print(select_money)
         if self.cards_game:
             for i in select_money:
                 for j in i:
@@ -517,11 +512,18 @@ class Class_game:
         return ConversationHandler.END
 
     def controls(self, update, context):
-        reply_keyboard = [['Посмотреть карты', 'Сделать ход'],
-                          ['Управление', 'Выход']]
-        markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
-        update.message.reply_text('Что вы хотите сделать?',
-                                  reply_markup=markup)
+        if self.first_turn == 'player':
+            reply_keyboard = [['Посмотреть карты', 'Сделать ход'],
+                              ['Управление', 'Выход']]
+            markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
+            update.message.reply_text('Что вы хотите сделать?',
+                                      reply_markup=markup)
+        else:
+            reply_keyboard = [['Посмотреть карты', 'Начать игру'],
+                              ['Управление', 'Выход']]
+            markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
+            update.message.reply_text('Что вы хотите сделать?',
+                                      reply_markup=markup)
 
         return self.DEFINE
 
@@ -544,7 +546,7 @@ class Class_game:
 
             for i in select_money:
                 for j in i:
-                    update_value = cur.execute('''UPDATE money SET money = ? WHERE nik = ?''',
+                    update_value = self.cur.execute('''UPDATE money SET money = ? WHERE nik = ?''',
                                                (int(j) - 50, self.nik)).fetchall()
                     self.con.commit()
 
@@ -743,11 +745,6 @@ class Class_game:
                                                                                                         self.nik,)).fetchall()
                 self.con.commit()
 
-                sqlite_insert_query2 = """INSERT INTO money VALUES ('""" + self.nik + "', '" + str(self.money) + "')"
-                count = self.cur.execute(
-                    sqlite_insert_query2)  # добавляем в таблицу пользователей и их счета пользователя и счет
-                self.con.commit()
-
     def users_output(self):  # для обработки ввода для погоды и т.п
         self.show_weather = True
         return self.DEFINE
@@ -780,21 +777,36 @@ class Class_game:
         command = update.message.text
         print(f'Команда: {command}')
 
-        if command.lower() == 'карты':
-            print('\nНачало игры в карты')
-            self.cards_game = True
-            return self.game(update, context)
+        if not self.cards_game:
+            select_money = self.cur.execute('''SELECT money FROM money WHERE nik = ?''', (self.nik,)).fetchall()
+            for i in select_money:
+                if int(i[0]) < 50:
+                    update.message.reply_text('Ваш баланс: 0'
+                                              '\nАвтоматический выход из бота')
+                    return self.stop(update, context)
+            if command.lower() == 'карты':
+                print('\nНачало игры в карты')
+                self.cards_game = True
+                return self.game(update, context)
 
-        elif command.lower() == 'монетка':
-            print('\nНачало игры в монетку')
+            elif command.lower() == 'монетка':
+                print('\nНачало игры в монетку')
+                return self.coin(update, context)
 
-            return self.coin(update, context)
+            elif command.lower() == 'посмотреть погоду':
+                update.message.reply_text('Введите своё местоположение (город):')
+                return self.users_output()
 
-        elif command.lower() == 'посмотреть погоду':
-            update.message.reply_text('Введите своё местоположение (город):')
-            return self.users_output()
+            elif self.show_weather is True:
+                if command.lower() != 'выход' and command.isdigit() is False:
+                    return self.find_weather(update, command)
+                else:
+                    if command.isdigit() is True:
+                        update.message.reply_text('Вы ввели число!'
+                                                  '\nВведите запрос заново или введите <выход>')
+                        return self.users_output(update)  # может появиться ошибка с двумя сообщениями
 
-        elif command.lower() == 'выход':
+        if command.lower() == 'выход':
             if self.cards_game is False and self.show_weather is False:
                 print('\nВыход')
                 self.already_started = 0
@@ -811,15 +823,6 @@ class Class_game:
                                           '\nВаши 50 монет не сохранятся')
                 self.sure = True
                 return self.DEFINE
-
-        elif self.show_weather is True:
-            if command.lower() != 'выход' and command.isdigit() is False:
-                return self.find_weather(update, command)
-            else:
-                if command.isdigit() is True:
-                    update.message.reply_text('Вы ввели число!'
-                                              '\nВведите запрос заново или введите <выход>')
-                    return self.users_output(update)  # может появиться ошибка с двумя сообщениями
 
         elif self.cards_game is True and self.sure is True:
             if command.lower() == 'да':
@@ -862,6 +865,9 @@ class Class_game:
                 print('\nADMIN: мгновенная победа')
                 return self.pobeda('b', update, context)
 
+            elif command.lower() == 'начать игру':
+                return self.bot_move(update, context)
+
     def main(self):
         conv_handler = ConversationHandler(
             entry_points=[CommandHandler('start', self.go)],
@@ -878,7 +884,8 @@ class Class_game:
             fallbacks=[CommandHandler('stop', self.stop), CommandHandler('controls', self.controls),
                        CommandHandler('show_cards', self.show_cards),
                        CommandHandler('player_choose_card', self.player_choose_card),
-                       CommandHandler('player_choose_answer', self.player_choose_answer)]
+                       CommandHandler('player_choose_answer', self.player_choose_answer),
+                       CommandHandler('bot_move', self.bot_move)]
         )
         self.dp.add_handler(conv_handler)
 
